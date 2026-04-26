@@ -11,7 +11,6 @@
             background: linear-gradient(to right, #667eea, #764ba2);
         }
 
-        /* Top bar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -28,7 +27,6 @@
             border-radius: 5px;
         }
 
-        /* Center card */
         .container {
             display: flex;
             justify-content: center;
@@ -76,13 +74,11 @@
 
 <body>
 
-<!-- 🔝 Top bar -->
 <div class="navbar">
     <div>🚀 My App</div>
     <button onclick="goToLogin()">Login</button>
 </div>
 
-<!-- 💳 Register Card -->
 <div class="container">
     <div class="card">
         <h2>Create Account</h2>
@@ -103,7 +99,7 @@ function register() {
         password: document.getElementById("password").value
     };
 
-    fetch("http://localhost:8080/api/register", {
+    fetch("/api/register", {   // ✅ FIXED HERE
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -113,11 +109,14 @@ function register() {
     .then(res => res.text())
     .then(data => {
         document.getElementById("result").innerText = data;
+    })
+    .catch(err => {
+        document.getElementById("result").innerText = "Error: " + err;
     });
 }
 
 function goToLogin() {
-    window.location.href = "/login";
+    window.location.href = "/login.html";
 }
 </script>
 
