@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+}
+
+/* GLASS CARD */
+.container {
+    width: 350px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+/* INPUT */
+input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 10px;
+}
+
+/* BUTTON */
+button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* TASK CARD */
+.task {
+    background: white;
+    color: black;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* LOGOUT */
+.logout {
+    background: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div>🚀 My App</div>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+    <h1 id="welcome">Loading...</h1>
+
+    <input type="text" id="taskInput" placeholder="Add a task">
+    <button onclick="addTask()">Add</button>
+
+    <div id="taskList"></div>
+
+</div>
+
+<script>
+window.onload = function() {
+    fetch("/user")
+    .then(res => res.text())
+    .then(username => {
+        document.getElementById("welcome").innerText =
+            "Welcome, " + username;
+    });
+
+    loadTasks();
+};
+
+function addTask() {
+    const title = document.getElementById("taskInput").value;
+
+    fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: title })
+    })
+    .then(() => {
+        document.getElementById("taskInput").value = "";
+        loadTasks();
+    });
+}
+
+function loadTasks() {
+    fetch("/api/tasks")
+    .then(res => res.json())
+    .then(tasks => {
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        tasks.forEach(task => {
+            const div = document.createElement("div");
+            div.className = "task";
+
+            const text = document.createElement("span");
+            text.innerText = task.title;
+
+            const btn = document.createElement("button");
+            btn.innerText = "X";
+            btn.onclick = () => deleteTask(task.id);
+
+            div.appendChild(text);
+            div.appendChild(btn);
+            list.appendChild(div);
+        });
+    });
+}
+
+function deleteTask(id) {
+    fetch("/api/tasks/" + id, {
+        method: "DELETE",
+        credentials: "same-origin"
+    })
+    .then(() => loadTasks());
+}
+
+function logout() {
+    window.location.href = "/logout";
+}
+</script>
+
+</body>
+</html>
